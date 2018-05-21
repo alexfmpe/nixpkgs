@@ -1,6 +1,7 @@
 { lib, hostPlatform, targetPlatform
 , clang-unwrapped
 , binutils-unwrapped
+, requireFile
 , runCommand
 , stdenv
 , wrapBintoolsWith
@@ -18,14 +19,61 @@ iosPlatformArch = { parsed, ... }: {
   "x86_64"  = "x86_64";
 }.${parsed.cpu.name};
 
+# TODO(alexfmpe):
+# tests?
+# allow extracting/validating .xip in linux: does the nix hash make validating useless?
+# handle XCode patch versions: do they change the SDKs? if so, how to distinguish/identify them?
+# turn instructions into a proper script and run in temporary directory
+# check if *running* the simulator requires extra deps - there's a suspiciously large size difference between 10.x and 11.x simulator SDKs
+requireSDK = { sdkType, version }:
+  let xcodeVersion = xcode.forSDK."${sdkType + version}";
+      versionedApp = "Xcode${xcodeVersion}.app";
+      xip   = "Xcode_" + xcodeVersion +  ".xip";
+      unxip = if stdenv.isDarwin
+              then "open -W ${xip}"
+              else ''
+                xar -xf ${xip}
+                pbzx -n Content | cpio -i
+              '';
+
+      app = requireFile rec {
+        name     = "Xcode.app";
+        url      = "https://download.developer.apple.com/Developer_Tools/Xcode_" + xcodeVersion + "/" + xip;
+        hashMode = "recursive";
+        sha256   = xcode.hashes."${xcodeVersion}";
+
+        message  = ''
+          Unfortunately, we cannot download ${name} automatically.
+          Please go to ${url}
+          to download it yourself, and add it to the Nix store by running the following commands in OS X.  
+          Note: download (~ 5GB), extraction and storing of xcode will take a while
+
+          ${unxip}
+          rm -rf ${xip}
+          mv Xcode.app ${versionedApp}
+          nix-store --add-fixed --recursive sha256 ${versionedApp}
+          rm -rf ${versionedApp}
+        '';
+      };
+  in app + "/Contents/Developer/Platforms/iPhone${sdkType}.platform/Developer/SDKs/iPhone${sdkType}${version}.sdk";
+
+xcode = {
+  hashes = {
+    "8.2" = "13nd1zsfqcp9hwp15hndr0rsbb8rgprrz7zr2ablj4697qca06m2";
+  };
+  forSDK = {
+    "OS10.2"        = "8.2";
+    "Simulator10.2" = "8.2";
+  };
+};
+
 in
 
 rec {
-  # TODO(kmicklas): Make a pure version of this for each supported SDK version.
   sdk = rec {
     name = "ios-sdk";
     type = "derivation";
-    outPath = "/Applications/Xcode.app/Contents/Developer/Platforms/iPhone${sdkType}.platform/Developer/SDKs/iPhone${sdkType}${version}.sdk";
+    outPath = requireSDK { inherit sdkType version; };
 
     sdkType = if targetPlatform.isiPhoneSimulator then "Simulator" else "OS";
     version = targetPlatform.sdkVer;
