@@ -23,7 +23,7 @@ in
   cctools = callPackage ../os-specific/darwin/cctools/port.nix {
     inherit (darwin) libobjc maloader;
     stdenv = if stdenv.isDarwin then stdenv else pkgs.libcxxStdenv;
-    xctoolchain = darwin.xcode.toolchain;
+    xctoolchain = darwin.xcode_8_2.toolchain;
   };
 
   cf-private = callPackage ../os-specific/darwin/cf-private {
@@ -53,6 +53,6 @@ in
 
   usr-include = callPackage ../os-specific/darwin/usr-include { };
 
-  xcode = callPackage ../os-specific/darwin/xcode { };
+  inherit (callPackages ../os-specific/darwin/xcode {}) xcode_8_2;
 
 })
