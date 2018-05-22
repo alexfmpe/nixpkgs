@@ -8,6 +8,7 @@
   lib
   # Args to pass on to the pkgset builder, too
 , localSystem, crossSystem, config, overlays
+, xcode
 } @ args:
 
 let
@@ -34,7 +35,7 @@ let
 
   stagesAndroidPrebuilt = import ./android-prebuilt args;
 
-  stagesIosPrebuilt = import ./ios-prebuilt args;
+  stagesIosPrebuilt = import ./ios-prebuilt (args // { inherit xcode; });
 
   stagesCustom = import ./custom args;
 

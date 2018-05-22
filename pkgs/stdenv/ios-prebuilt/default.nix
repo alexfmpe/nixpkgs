@@ -1,5 +1,6 @@
 { lib
 , localSystem, crossSystem, config, overlays
+, xcode
 }:
 
 # As of 12cc39514, according to @shlevy:
@@ -34,7 +35,7 @@ let
 
   sdkVer = crossSystem.sdkVer;
 
-  sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/iPhone${sdkType}.platform/Developer/SDKs/iPhone${sdkType}${sdkVer}.sdk";
+  sdk = xcode + "/Contents/Developer/Platforms/iPhone${sdkType}.platform/Developer/SDKs/iPhone${sdkType}${sdkVer}.sdk";
 
 in bootStages ++ [
 
