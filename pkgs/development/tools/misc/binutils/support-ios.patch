@@ -30,7 +30,7 @@ index f04a993f06..9f14a53c73 100644
      targ_selvecs="i386_mach_o_vec mach_o_le_vec mach_o_be_vec mach_o_fat_vec pef_vec pef_xlib_vec sym_vec"
      targ_archs="$targ_archs bfd_powerpc_arch bfd_rs6000_arch"
 diff --git a/configure.ac b/configure.ac
-index aae94501e4..ef1c1d7403 100644
+index aae94501e4..66a2af17f9 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -510,7 +510,7 @@ if test x$enable_libgomp = x ; then
@@ -109,6 +109,15 @@ index aae94501e4..ef1c1d7403 100644
      host_makefile_frag="config/mh-darwin"
      ;;
    powerpc-*-aix*)
+@@ -1697,7 +1697,7 @@ ACX_ELF_TARGET_IFELSE([# ELF platforms build the lto-plugin always.
+   build_lto_plugin=yes
+ ],[if test x"$default_enable_lto" = x"yes" ; then
+     case $target in
+-      *-apple-darwin[[912]]* | *-cygwin* | *-mingw* | *djgpp*) ;;
++      *-apple-darwin[[912]]* | *-apple-ios[[912]]* | *-cygwin* | *-mingw* | *djgpp*) ;;
+       # On other non-ELF platforms, LTO has yet to be validated.
+       *) enable_lto=no ;;
+     esac
 @@ -1708,7 +1708,7 @@ ACX_ELF_TARGET_IFELSE([# ELF platforms build the lto-plugin always.
    # warn during gcc/ subconfigure; unless you're bootstrapping with
    # -flto it won't be needed until after installation anyway.
