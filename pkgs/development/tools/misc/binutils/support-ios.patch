@@ -1,5 +1,5 @@
 diff --git a/bfd/config.bfd b/bfd/config.bfd
-index f04a993f06..3357022f35 100644
+index f04a993f06..9f14a53c73 100644
 --- a/bfd/config.bfd
 +++ b/bfd/config.bfd
 @@ -238,7 +238,7 @@ case "${targ}" in
@@ -20,6 +20,15 @@ index f04a993f06..3357022f35 100644
      targ_defvec=arm_mach_o_vec
      targ_selvecs="mach_o_le_vec mach_o_be_vec mach_o_fat_vec"
      targ_archs="$targ_archs bfd_i386_arch bfd_powerpc_arch bfd_rs6000_arch"
+@@ -762,7 +762,7 @@ case "${targ}" in
+     targ_defvec=x86_64_elf64_cloudabi_vec
+     want64=true
+     ;;
+-  x86_64-*-darwin*)
++  x86_64-*-darwin* | x86_64-*-ios*)
+     targ_defvec=x86_64_mach_o_vec
+     targ_selvecs="i386_mach_o_vec mach_o_le_vec mach_o_be_vec mach_o_fat_vec pef_vec pef_xlib_vec sym_vec"
+     targ_archs="$targ_archs bfd_powerpc_arch bfd_rs6000_arch"
 diff --git a/configure.ac b/configure.ac
 index aae94501e4..4b1121e0d1 100644
 --- a/configure.ac
