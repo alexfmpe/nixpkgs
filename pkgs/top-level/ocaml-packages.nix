@@ -19,6 +19,7 @@ let
     alcotest = callPackage ../development/ocaml-modules/alcotest {};
 
     angstrom = callPackage ../development/ocaml-modules/angstrom { };
+    tezos = callPackage ../development/ocaml-modules/tezos { };
 
     angstrom-async = callPackage ../development/ocaml-modules/angstrom-async { };
 
@@ -72,6 +73,8 @@ let
     bigarray-compat = callPackage ../development/ocaml-modules/bigarray-compat { };
 
     bigstringaf = callPackage ../development/ocaml-modules/bigstringaf { };
+
+    bigstring = callPackage ../development/ocaml-modules/bigstring { };
 
     bistro = callPackage ../development/ocaml-modules/bistro { };
 
@@ -229,6 +232,8 @@ let
 
     dune = callPackage ../development/tools/ocaml/dune { };
 
+    dum = callPackage ../development/ocaml-modules/dum { };
+
     earley = callPackage ../development/ocaml-modules/earley { };
 
     earlybird = callPackage ../development/ocaml-modules/earlybird { };
@@ -289,6 +294,8 @@ let
 
     gen = callPackage ../development/ocaml-modules/gen { };
 
+    genspio = callPackage ../development/ocaml-modules/genspio { };
+
     gmap = callPackage ../development/ocaml-modules/gmap { };
 
     herelib = callPackage ../development/ocaml-modules/herelib { };
@@ -313,6 +320,8 @@ let
       if lib.versionOlder "4.02" ocaml.version
       then callPackage ../development/ocaml-modules/ipaddr { }
       else ipaddr_p4;
+
+    irmin = callPackage ../development/ocaml-modules/irmin { };
 
     iso8601 = callPackage ../development/ocaml-modules/iso8601 { };
 
@@ -448,6 +457,8 @@ let
       lwt = ocaml_lwt;
     };
 
+    macaddr = callPackage ../development/ocaml-modules/macaddr { };
+
     macaque = callPackage ../development/ocaml-modules/macaque { };
 
     magic-mime = callPackage ../development/ocaml-modules/magic-mime { };
@@ -520,6 +531,8 @@ let
     ocaml_gettext = callPackage ../development/ocaml-modules/ocaml-gettext { };
 
     ocamlgraph = callPackage ../development/ocaml-modules/ocamlgraph { };
+
+    ocaml-hidapi = callPackage ../development/ocaml-modules/ocaml-hidapi { };
 
     ocaml_http = callPackage ../development/ocaml-modules/http { };
 
