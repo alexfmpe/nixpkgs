@@ -1,4 +1,6 @@
-{ stdenv, fetchFromGitHub, buildDunePackage }:
+{ stdenv, fetchFromGitHub, buildDunePackage
+, nonstd, sosa
+}:
 
 buildDunePackage rec {
   pname = "genspio";
@@ -9,9 +11,16 @@ buildDunePackage rec {
   src = fetchFromGitHub {
     owner = "hammerlab";
     repo = pname;
-    rev = "genspio.${version}";
+    rev = "${pname}.${version}";
     sha256 = "0cp6p1f713sfv4p2r03bzvjvakzn4ili7hf3a952b3w1k39hv37x";
   };
+
+  propagatedBuildInputs = [ nonstd sosa ];
+
+  buildPhase = ''
+    ocaml please.mlt configure
+    dune build -p genspio
+  '';
 
   doCheck = true;
 

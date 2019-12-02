@@ -18,8 +18,6 @@ let
                     ocamlgraph ocaml-hidapi ocplib-endian ocp-ocamlres pprint tls zarith
                   ];
 
-    propagatedBuildInputs = [  ];
-
     buildPhase = ''
       echo "============BUILD==============="
       runHook preBuild

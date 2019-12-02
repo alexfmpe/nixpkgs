@@ -493,6 +493,8 @@ let
 
     nocrypto =  callPackage ../development/ocaml-modules/nocrypto { };
 
+    nonstd =  callPackage ../development/ocaml-modules/nonstd { };
+
     notty = callPackage ../development/ocaml-modules/notty {
       lwt = ocaml_lwt;
     };
@@ -653,6 +655,8 @@ let
     };
 
     seq = callPackage ../development/ocaml-modules/seq { };
+
+    sosa = callPackage ../development/ocaml-modules/sosa { };
 
     spacetime_lib = callPackage ../development/ocaml-modules/spacetime_lib { };
 
