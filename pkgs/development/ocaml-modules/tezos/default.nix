@@ -40,6 +40,8 @@ let
     #  propagatedBuildInputs = [ bigstringaf result ];
     #  doCheck = true;
 
+    hardeningDisable = stdenv.lib.optional stdenv.isDarwin "strictoverflow";
+
     src = fetchFromGitLab {
       owner  = "tezos";
       repo   = pname;
