@@ -168,7 +168,7 @@
    </para>
 
    <para>
-    Finally, if the depending package is a compiler or other machine-code-producing tool, it might need dependencies that run at "emit time". This is for compilers that (regrettably) insist on being built together with their source langauges' standard libraries. Assuming build != host != target, a run-time dependency of the standard library cannot be run at the compiler's build time or run time, but only at the run time of code emitted by the compiler.
+    Finally, if the depending package is a compiler or other machine-code-producing tool, it might need dependencies that run at "emit time". This is for compilers that (regrettably) insist on being built together with their source languages' standard libraries. Assuming build != host != target, a run-time dependency of the standard library cannot be run at the compiler's build time or run time, but only at the run time of code emitted by the compiler.
    </para>
 
    <para>
