@@ -7,8 +7,10 @@ rustPlatform.buildRustPackage {
   name = "cargo-${rustc.version}";
   inherit (rustc) version src;
 
+  cargoSha256 = "0skdbxk1lwbs1vzxlll45c05i64yr4rkfpshxipk9isyhssfa6la";
+  verifyCargoDeps = true;
   # the rust source tarball already has all the dependencies vendored, no need to fetch them again
-  cargoVendorDir = "vendor";
+  #cargoVendorDir = "vendor";
   buildAndTestSubdir = "src/tools/cargo";
 
   passthru.rustc = rustc;

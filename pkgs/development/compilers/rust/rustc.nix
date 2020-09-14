@@ -1,5 +1,5 @@
 { stdenv, removeReferencesTo, pkgsBuildBuild, pkgsBuildHost, pkgsBuildTarget
-, fetchurl, file, python3
+, fetchurl, fetchgit, fetchFromGitHub, file, python3
 , llvm_10, darwin, cmake, rust, rustPlatform
 , pkgconfig, openssl
 , which, libffi
@@ -24,9 +24,24 @@ in stdenv.mkDerivation rec {
   pname = "rustc";
   inherit version;
 
-  src = fetchurl {
+  src2 = fetchurl {
     url = "https://static.rust-lang.org/dist/rustc-${version}-src.tar.gz";
     inherit sha256;
+  };
+
+  src = fetchFromGitHub {
+    fetchSubmodules = true;
+    repo = "rust";
+
+    # solana-1.39
+    # owner = "alexfmpe";
+    # rev = "953dfb5e65de418917d8cd808ac85a131613589a";
+    # sha256 = "0a2z10qbjvva835cf182xykxlh0ymr06cfmgpwdp8pn14vn2wrnc";
+
+    # solana-1.46
+    owner = "alexfmpe";
+    rev = "390f1bd889335abb6ae7a5c97c7665f7ea417922";
+    sha256 = "0lsk349xcxkk1hz9ax01rbwli37j207fvl8anspa27bayd3i3d0i";
   };
 
   __darwinAllowLocalNetworking = true;
@@ -65,7 +80,7 @@ in stdenv.mkDerivation rec {
     ccForTarget  = "${pkgsBuildTarget.targetPackages.stdenv.cc}/bin/${pkgsBuildTarget.targetPackages.stdenv.cc.targetPrefix}cc";
     cxxForTarget = "${pkgsBuildTarget.targetPackages.stdenv.cc}/bin/${pkgsBuildTarget.targetPackages.stdenv.cc.targetPrefix}c++";
   in [
-    "--release-channel=stable"
+    "--release-channel=nightly"
     "--set=build.rustc=${rustPlatform.rust.rustc}/bin/rustc"
     "--set=build.cargo=${rustPlatform.rust.cargo}/bin/cargo"
     "--enable-rpath"
