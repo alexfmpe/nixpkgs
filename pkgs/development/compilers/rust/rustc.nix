@@ -33,26 +33,8 @@ in stdenv.mkDerivation rec {
 
     # solana-1.39
     owner = "alexfmpe";
-    rev = "454cdac477b1be6cb96c0dcde9464b8dcfbd3053";
-    sha256 = "0b72px6msjdx5qv2gpkns5a2i633nhkqnw28fac4s3jrcxxk3wa2";
-
-    #rev = "953dfb5e65de418917d8cd808ac85a131613589a";
-    #sha256 = "0a2z10qbjvva835cf182xykxlh0ymr06cfmgpwdp8pn14vn2wrnc";
-
-    # solana-1.46
-    # owner = "solana-labs";
-    # rev = "4f2d6e0a051d25074ec6078e4cefd3c95e34e13d";
-    # sha256 = "1xq5hpfxrvqp8z9cgmb3w8vzkdc900bzwiv9g1jpjj485jcc10x9";
-
-    # solana-1.46
-    #owner = "alexfmpe";
-    #rev = "b41f3f716c1185d0acfd2f3cf89b811cd7373e3c";
-    #sha256 = "045c81grghx9qld61hbivfvykmcxb9r5c4a2d6apmh77q0qqvnw2";
-
-    # solana-1.46
-    # owner = "rust-lang";
-    # rev = "04488afe34512aa4c33566eb16d8c912a3ae04f9";
-    # sha256 = "1j0245wgymna66wzsbdzh9dbpxqc9mwivcmz0wsa4p1kqwwjslxd";
+    rev = "da44391e139d7948fddc4d4e1bea71dc856a77d3";
+    sha256 = "1m1vgkp5zxlqnphnb4r4lk8ahas9959dl6q8b80w3yicdp0b7h6p";
   };
 
   __darwinAllowLocalNetworking = true;
