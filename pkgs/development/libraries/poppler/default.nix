@@ -33,7 +33,7 @@
 let
   mkFlag = optset: flag: "-DENABLE_${flag}=${if optset then "on" else "off"}";
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (rec {
   pname = "poppler-${suffix}";
   version = "22.08.0"; # beware: updates often break cups-filters build, check texlive and scribus too!
 
@@ -121,4 +121,9 @@ stdenv.mkDerivation rec {
     platforms = platforms.all;
     maintainers = with maintainers; [ ttuegel ] ++ teams.freedesktop.members;
   };
-}
+}  // lib.optionalAttrs qt5Support {
+  postInstall = ''
+    cp ../qt5/src/*.h $out/include
+    cp qt5/src/*.h $out/include
+  '';
+})
