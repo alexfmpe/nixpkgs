@@ -131,4 +131,9 @@ stdenv.mkDerivation (finalAttrs: rec {
     platforms = platforms.all;
     maintainers = with maintainers; [ ttuegel ] ++ teams.freedesktop.members;
   };
+}  // lib.optionalAttrs qt5Support {
+  postInstall = ''
+    cp ../qt5/src/*.h $out/include
+    cp qt5/src/*.h $out/include
+  '';
 })
