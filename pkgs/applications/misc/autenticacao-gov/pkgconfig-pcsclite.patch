@@ -1,0 +1,11 @@
+diff --git a/pteid-mw-pt/_src/eidmw/_Builds/eidcommon.mak b/pteid-mw-pt/_src/eidmw/_Builds/eidcommon.mak
+index da80f489..62236015 100644
+--- a/pteid-mw-pt/_src/eidmw/_Builds/eidcommon.mak
++++ b/pteid-mw-pt/_src/eidmw/_Builds/eidcommon.mak
+@@ -58,3 +58,6 @@ isEmpty(PKG_NAME){
+ }
+
+ include ($${PKG_NAME}versions.mak)
++
++CONFIG += link_pkgconfig
++PKGCONFIG += libpcsclite

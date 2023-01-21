@@ -28024,6 +28024,8 @@ with pkgs;
     gtkGUI = false;
   };
 
+  autenticacao-gov = libsForQt5.callPackage ../applications/misc/autenticacao-gov {};
+
   autopanosiftc = callPackage ../applications/graphics/autopanosiftc { };
 
   AusweisApp2 = libsForQt5.callPackage ../applications/misc/ausweisapp2 { };
