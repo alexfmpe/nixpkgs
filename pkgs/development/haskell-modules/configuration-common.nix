@@ -2624,8 +2624,9 @@ self: super: {
   # https://github.com/ngless-toolkit/ngless/issues/152
   NGLess = dontCheck super.NGLess;
 
-  # Raise version bounds for hspec
-  records-sop = doJailbreak super.records-sop;
+
+  large-generics = doJailbreak super.large-generics; # 2024-05-03: Raise version bounds for base
+  records-sop = doJailbreak super.records-sop; # 2024-05-03: Raise version bounds for hspec
 
   # Fix build failures for ghc 9 (https://github.com/mokus0/polynomial/pull/20)
   polynomial = appendPatch (fetchpatch {
