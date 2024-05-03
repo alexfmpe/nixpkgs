@@ -2625,10 +2625,7 @@ self: super: {
   NGLess = dontCheck super.NGLess;
 
   # Raise version bounds for hspec
-  records-sop = appendPatch (fetchpatch {
-    url = "https://github.com/kosmikus/records-sop/pull/11/commits/d88831388ab3041190130fec3cdd679a4217b3c7.patch";
-    sha256 = "sha256-O+v/OxvqnlWX3HaDvDIBZnJ+Og3xs/SJqI3gaouU3ZI=";
-  }) super.records-sop;
+  records-sop = doJailbreak super.records-sop;
 
   # Fix build failures for ghc 9 (https://github.com/mokus0/polynomial/pull/20)
   polynomial = appendPatch (fetchpatch {
