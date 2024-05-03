@@ -93,6 +93,7 @@ self: super: {
   diagrams-postscript = doJailbreak super.diagrams-postscript;  # base <4.19, bytestring <0.12
   diagrams-svg = doJailbreak super.diagrams-svg;  # base <4.19, text <2.1
   ghc-trace-events = doJailbreak super.ghc-trace-events; # text < 2.1, bytestring < 0.12, base < 4.19
+  http2-grpc-proto-lens = doJailbreak super.http2-grpc-proto-lens; # bytestring <0.12
   primitive-unlifted = doJailbreak super.primitive-unlifted; # bytestring < 0.12
   statestack = doJailbreak super.statestack; # base < 4.19
   newtype-generics = doJailbreak super.newtype-generics; # base < 4.19
