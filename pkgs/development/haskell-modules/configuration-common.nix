@@ -3068,4 +3068,7 @@ self: super: {
 
   # Too strict bounds on text. Can be removed after https://github.com/alx741/currencies/pull/3 is merged
   currencies = doJailbreak super.currencies;
+
+  http2-grpc-types = doJailbreak super.http2-grpc-types; # bytestring upper bound needs relaxing
+
 } // import ./configuration-tensorflow.nix {inherit pkgs haskellLib;} self super
