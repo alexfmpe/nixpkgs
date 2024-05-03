@@ -2626,6 +2626,7 @@ self: super: {
 
 
   large-generics = doJailbreak super.large-generics; # 2024-05-03: Raise version bounds for base
+  #large-records = doJailbreak super.large-records; # 2024-05-03: Raise version bounds for base/mtl
   records-sop = doJailbreak super.records-sop; # 2024-05-03: Raise version bounds for hspec
 
   # Fix build failures for ghc 9 (https://github.com/mokus0/polynomial/pull/20)
