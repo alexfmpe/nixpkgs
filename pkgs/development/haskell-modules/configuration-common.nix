@@ -3069,6 +3069,12 @@ self: super: {
   # Too strict bounds on text. Can be removed after https://github.com/alx741/currencies/pull/3 is merged
   currencies = doJailbreak super.currencies;
 
+  # backporting from 0.10.0.2
+  http2-client = appendPatch (pkgs.fetchpatch {
+    url = "https://github.com/haskell-grpc-native/http2-client/commit/a45883ccbd68c0c52f8e4cc6cca052fb660d57e2.patch";
+    hash = "sha256-7Q+W7iSBGtJz1yGA/i+DrlmrCDDxzRAZVakQ01hH5mU=";
+  }) (doJailbreak super.http2-client);
+
   http2-grpc-types = doJailbreak super.http2-grpc-types; # bytestring upper bound needs relaxing
 
 } // import ./configuration-tensorflow.nix {inherit pkgs haskellLib;} self super
