@@ -28,6 +28,6 @@ buildDunePackage rec {
     homepage = "https://github.com/mirage/ocaml-ipaddr";
     description = "Library for manipulation of MAC address representations";
     license = licenses.isc;
-    maintainers = [ maintainers.alexfmpe ];
+    maintainers = [ ];
   };
 }

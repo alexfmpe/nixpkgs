@@ -27,6 +27,6 @@ lib.throwIf (lib.versionAtLeast ocaml.version "5.0") "nonstd is not available fo
       homepage = "https://bitbucket.org/smondet/nonstd";
       description = "Non-standard mini-library";
       license = licenses.isc;
-      maintainers = [ maintainers.alexfmpe ];
+      maintainers = [ ];
     };
   }

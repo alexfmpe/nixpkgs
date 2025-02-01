@@ -47,6 +47,6 @@ lib.throwIf (lib.versionOlder ocaml.version "4.02")
       homepage = "http://www.hammerlab.org/docs/sosa/master/index.html";
       description = "Sane OCaml String API";
       license = licenses.isc;
-      maintainers = [ maintainers.alexfmpe ];
+      maintainers = [ ];
     };
   }
