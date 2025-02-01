@@ -1083,7 +1083,7 @@
     name = "Alex Chapman";
   };
   alexfmpe = {
-    email = "alexandre.fmp.esteves@gmail.com";
+    email = "alexfmpe@proton.me";
     github = "alexfmpe";
     githubId = 2335822;
     name = "Alexandre Esteves";
