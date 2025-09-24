@@ -99,6 +99,16 @@ rec {
   # NOTE: Default JDKs are LTS versions and according to
   # https://docs.gradle.org/current/userguide/compatibility.html
 
+  gradle_8 = gen {
+    version = "8.13";
+    nativeVersion = "0.22-milestone-28";
+    sha256 = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=";
+    defaultJava = jdk17;
+    # Gradle 8 ships some binaries that are only available for some platforms
+    # See https://github.com/gradle/native-platform#supported-platforms
+    supportedPlatforms =  [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" "x86_64-cygwin" "x86_64-windows" "i686-windows"  ];
+  };
+
   gradle_7 = gen {
     version = "7.5";
     nativeVersion = "0.22-milestone-23";
