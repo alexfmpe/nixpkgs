@@ -3,8 +3,8 @@
 }:
 
 { toolsVersion ? "26.1.1"
-, platformToolsVersion ? "33.0.2"
-, buildToolsVersions ? [ "32.0.0" ]
+, platformToolsVersion ? "35.0.2"
+, buildToolsVersions ? [ "35.0.0" ]
 , includeEmulator ? false
 , emulatorVersion ? "31.3.7"
 , platformVersions ? []
