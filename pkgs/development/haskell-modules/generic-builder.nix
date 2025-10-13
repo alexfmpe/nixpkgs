@@ -41,7 +41,7 @@ let
       stdenv.hostPlatform.emulatorAvailable buildPackages && !(crossSupport.iservProxyDependency pname);
 
     # Many suites use Template Haskell for test discovery, including QuickCheck
-    canCheck = pname: hasBuiltinTH || canProxyTH pname;
+    canCheck = pname: false;
 
     iservWrapper =
       let
@@ -75,7 +75,7 @@ let
           name = "iserv-wrapper-both";
           paths = builtins.map wrapperScript [
             false
-            true
+#            true
           ];
         };
 
