@@ -42,6 +42,8 @@ stdenv.mkDerivation rec {
     "--disable-exec-static-tramp"
   ];
 
+  ${if stdenv.hostPlatform.isAndroid then "LDFLAGS" else null} = "-Wl,-z,max-page-size=16384";
+
   preCheck = ''
     # The tests use -O0 which is not compatible with -D_FORTIFY_SOURCE.
     NIX_HARDENING_ENABLE=''${NIX_HARDENING_ENABLE/fortify/}

@@ -232,6 +232,8 @@ let
     "--bindir=${binDir}"
   ] ++ optionals (doHaddockInterfaces && isLibrary) [
     "--ghc-options=-haddock"
+  ] ++ optionals stdenv.hostPlatform.isAndroid [
+    "--ghc-options=-optl=max-page-size=16384"
   ];
 
   setupCompileFlags = [
