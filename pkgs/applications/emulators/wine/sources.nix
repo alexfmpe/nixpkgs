@@ -113,6 +113,8 @@ rec {
     patches = [
       # Also look for root certificates at $NIX_SSL_CERT_FILE
       ./cert-path.patch
+
+      ./wine-add-dll-directory-10.patch
     ]
     ++ patches-binutils-2_44-fix-wine-older-than-10_2;
 

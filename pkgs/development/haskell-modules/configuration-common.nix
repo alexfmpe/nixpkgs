@@ -3303,6 +3303,8 @@ with haskellLib;
         }
       );
 
+  iserv-proxy = doJailbreak super.iserv-proxy;
+
   # 2025-08-04: Disable failing testcases. It would feel bad to disable all the
   # checks in a cryptography related package.
   botan-low = overrideCabal (drv: {

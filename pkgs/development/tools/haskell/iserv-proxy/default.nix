@@ -15,14 +15,14 @@
 }:
 mkDerivation {
   pname = "iserv-proxy";
-  version = "9.3-unstable-2025-06-21";
+  version = "9.3-unstable-2025-10-25";
 
   # https://github.com/stable-haskell/iserv-proxy/pull/1
   src = fetchFromGitHub {
     owner = "stable-haskell";
     repo = "iserv-proxy";
-    rev = "a53c57c9a8d22a66a2f0c4c969e806da03f08c28";
-    hash = "sha256-WaswH0Y+Fmupvv8AkIlQBlUy/IdD3Inx9PDuE+5iRYY=";
+    rev = "cc7bc12e84947f8e02f6e7a7e336d83daad22a42";
+    hash = "sha256-heHXPlwHqPj40oRwOnfQC08xnANpySwyUwIiiVGkX0c=";
   };
 
   isLibrary = true;

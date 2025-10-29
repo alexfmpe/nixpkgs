@@ -14,13 +14,16 @@
   iserv-proxy,
   nodejs,
   writeShellScriptBin,
+  windows,
+  libffi,
+  openssl
 }:
 
 let
   isCross = stdenv.buildPlatform != stdenv.hostPlatform;
 
   crossSupport = rec {
-    emulator = stdenv.hostPlatform.emulator buildPackages;
+    emulator = lib.optionalString stdenv.hostPlatform.isWindows "WINEPREFIX=$TMP " + stdenv.hostPlatform.emulator buildPackages;
 
     hasBuiltinTH = stdenv.hostPlatform.isGhcjs;
 
@@ -49,13 +52,30 @@ let
               enableLibraryProfiling = enableProfiling;
               enableExecutableProfiling = enableProfiling;
             };
-            hostProxy = overrides iserv-proxy.host + "/bin/iserv-proxy-interpreter";
+            interpreterExe = "iserv-proxy-interpreter" + lib.optionalString stdenv.hostPlatform.isWindows ".exe";
+            hostProxy = overrides iserv-proxy.host + "/bin/" + interpreterExe;
+            runProxy =
+              if stdenv.hostPlatform.isWindows
+              then "$REMOTE_ISERV/${interpreterExe}"
+              else hostProxy;
           in
           buildPackages.writeShellScriptBin ("iserv-wrapper" + lib.optionalString enableProfiling "-prof") ''
             set -euo pipefail
+
             PORT=$((5000 + $RANDOM % 5000))
+
+            ${lib.optionalString stdenv.hostPlatform.isWindows ''
+              REMOTE_ISERV=$(mktemp -d)
+              ln -s ${hostProxy} $REMOTE_ISERV
+              DLL_FOLDERS=$(tr ':' '\n' <<<$LINK_DLL_FOLDERS)
+              for p in $DLL_FOLDERS; do
+                find "$p" -iname '*.dll' -exec ln -sf {} $REMOTE_ISERV \;
+                find "$p" -iname '*.dll.a' -exec ln -sf {} $REMOTE_ISERV \;
+              done
+            ''}
+
             (>&2 echo "---> Starting interpreter on port $PORT")
-            ${emulator} ${hostProxy} tmp $PORT &
+            ${emulator} ${runProxy} tmp $PORT &
             RISERV_PID="$!"
             trap "kill $RISERV_PID" EXIT INT QUIT TERM # Needs cleanup when building without sandbox
             ${buildProxy} $@ 127.0.0.1 "$PORT"
@@ -367,11 +387,18 @@ let
   ++ optional (allPkgconfigDepends != [ ]) "--with-pkg-config=${pkg-config.targetPrefix}pkg-config"
 
   ++ optionals enableExternalInterpreter (
-    map (opt: "--ghc-option=${opt}") [
+    map (opt: "--ghc-option=${opt}") ([
       "-fexternal-interpreter"
       "-pgmi"
       crossSupport.iservWrapper
     ]
+
+    # Avoids:
+    #   user specified .o/.so/.DLL could not be loaded (addDLL: pthread or dependencies not loaded. (Win32 error 126))
+    ++ lib.optionals stdenv.hostPlatform.isWindows [
+      "-L${windows.pthreads}/bin"
+      "-L${windows.pthreads}/lib"
+    ])
   );
 
   makeGhcOptions = opts: lib.concatStringsSep " " (map (opt: "--ghc-option=${opt}") opts);
@@ -617,13 +644,21 @@ let
 
     ${
       let
+        runnee = ''"$@"'';
         runner =
           if (isCross && crossSupport.canCheck) then
             (if stdenv.hostPlatform.isGhcjs then "node" else crossSupport.emulator)
           else
             "exec";
-      in
-      runner + " " + ''"$@"''
+        setup = lib.optionalString stdenv.hostPlatform.isWindows ''
+          Path="''${Path:-}"
+          DLL_FOLDERS=$(tr ':' '\n' <<<$LINK_DLL_FOLDERS)
+          for path in $DLL_FOLDERS; do
+            Path="$Path;$path";
+          done
+          export Path
+        '';
+      in (setup + runner + " " + runnee)
     }
   '';
 

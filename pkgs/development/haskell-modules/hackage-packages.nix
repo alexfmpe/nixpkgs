@@ -474589,8 +474589,8 @@ self: {
     }:
     mkDerivation {
       pname = "network";
-      version = "3.2.8.0";
-      sha256 = "1j2zbjqpnrwkhi5673by8z1dp92mh3glik8a4r7jcxvxxdg8wy2i";
+      version = "3.2.7.0";
+      sha256 = "sha256-aFSOZgYyo8CbIwwz/gjMiAJzNytIXmXL56cXk23pcos=";
       libraryHaskellDepends = [
         base
         bytestring

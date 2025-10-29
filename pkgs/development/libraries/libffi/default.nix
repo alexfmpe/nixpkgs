@@ -49,6 +49,10 @@ stdenv.mkDerivation (finalAttrs: {
     "--enable-pax_emutramp"
   ];
 
+  # Mingw-w64 runtime failure:
+  # 32 bit pseudo relocation at 00000001400EB99E out of range, targeting 00006FFFFFEB8170, yielding the value 00006FFEBFDCC7CE.
+  ${if stdenv.hostPlatform.isWindows then "LDFLAGS" else null} = "-Wl,--disable-dynamicbase,--disable-high-entropy-va,--image-base=0x400000";
+
   preCheck = ''
     # The tests use -O0 which is not compatible with -D_FORTIFY_SOURCE.
     NIX_HARDENING_ENABLE=''${NIX_HARDENING_ENABLE/fortify3/}
