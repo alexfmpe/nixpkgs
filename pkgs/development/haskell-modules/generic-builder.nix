@@ -49,8 +49,8 @@ let
           enableProfiling:
           let
             overrides = haskellLib.overrideCabal {
-              enableLibraryProfiling = enableProfiling;
-              enableExecutableProfiling = enableProfiling;
+              enableLibraryProfiling = enableProfiling && false;
+              enableExecutableProfiling = enableProfiling && false;
             };
             interpreterExe = "iserv-proxy-interpreter" + lib.optionalString stdenv.hostPlatform.isWindows ".exe";
             hostProxy = overrides iserv-proxy.host + "/bin/" + interpreterExe;
@@ -154,7 +154,7 @@ in
   doHaddockQuickjump ? doHoogle,
   doInstallIntermediates ? false,
   editedCabalFile ? null,
-  enableLibraryProfiling ? !stdenv.hostPlatform.isGhcjs,
+  enableLibraryProfiling ? !isCross, # stdenv.hostPlatform.isGhcjs,
   enableExecutableProfiling ? false,
   profilingDetail ? "exported-functions",
   # TODO enable shared libs for cross-compiling

@@ -4,9 +4,16 @@
 let
   nixpkgs = (import ./. {});
   cross = nixpkgs.pkgsCross.aarch64-multiplatform;
-  hsPkgs = cross.haskell.packages.${version};
+  hsPkgs = cross.haskell.packages.native-bignum.${version};
   prefix = cross.hostPlatform.config;
-  cabal-install-cross = nixpkgs.writeShellScriptBin "${prefix}-cabal" ''
+
+#   qemu-aarch64
+
+  ghc-cross = nixpkgs.writeShellScriptBin "ghc" ''${prefix}-ghc "$@"'';
+  ghc-pkg-cross = nixpkgs.writeShellScriptBin "ghc-pkg" ''${prefix}-ghc-pkg "$@"'';
+
+#  cabal-install-cross = nixpkgs.writeShellScriptBin "${prefix}-cabal" ''
+  cabal-install-cross = nixpkgs.writeShellScriptBin "cabal" ''
     ${nixpkgs.cabal-install}/bin/cabal \
       --with-compiler=${prefix}-ghc \
       --with-hc-pkg=${prefix}-ghc-pkg \
@@ -17,28 +24,35 @@ let
 in {
   inherit nixpkgs prefix cabal-install-cross;
   build = hsPkgs.haskell-debugger;
-  shell = nixpkgs.mkShell {
-    packages = [
-      nixpkgs.cabal-install
-      cabal-install-cross
-#      emscripten
-#      nodejs
-      hsPkgs.ghc
-    ];
-  };
-}
-
 /*
-in {
-  inherit nixpkgs;
-  build = js-version.impli;
+  shell = hsPkgs.shellFor {
+    packages = ps: []; # hsPkgs.haskell-debugger ];
+    nativeBuildInputs = [
+      cabal-install-cross
+      # hsPkgs.haskell-debugger
+      nixpkgs.haskell.packages.native-bignum.${version}.haskell-debugger
+      nixpkgs.pkg-config
+    ];
+    buildInputs = [
+      cross.zlib
+    ];
+    inputsFrom = [];
+  };
+*/
+
   shell = with nixpkgs; mkShell {
     packages = [
-      cabal-install-ghcjs
-      emscripten
-      nodejs
-      js-version.ghc
+      cabal-install-cross
+      ghc-cross
+      ghc-pkg-cross
+      hsPkgs.ghc
+      hsPkgs.haskell-debugger
+      # nixpkgs.haskell.packages.native-bignum.${version}.haskell-debugger
+      #      emscripten
+      #      nodejs
+
+      cross.glibc
     ];
   };
+
 }
-*/

@@ -19,6 +19,7 @@ self: super: {
       in
       lib.mapAttrs (_: breakCycle) { inherit (super) iserv-proxy libiserv network temporary splitmix random
         th-lift th-abstraction syb th-reify-many safe th-compat
+        zlib
         th-expand-syns ;}
     )
     iserv-proxy
@@ -29,6 +30,7 @@ self: super: {
     random
     th-lift th-abstraction syb th-reify-many safe th-compat
     th-expand-syns
+    zlib
     ;
 
   # qemu: uncaught target signal 4 (Illegal instruction) - core dumped
