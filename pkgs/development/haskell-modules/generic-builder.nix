@@ -20,7 +20,9 @@ let
   isCross = stdenv.buildPlatform != stdenv.hostPlatform;
 
   crossSupport = rec {
-    emulator = stdenv.hostPlatform.emulator buildPackages;
+    emulator =
+      lib.optionalString stdenv.hostPlatform.isWindows "WINEPREFIX=$TMP "
+      + stdenv.hostPlatform.emulator buildPackages;
 
     hasBuiltinTH = stdenv.hostPlatform.isGhcjs;
 
