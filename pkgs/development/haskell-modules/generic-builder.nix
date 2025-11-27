@@ -43,7 +43,8 @@ let
               enableLibraryProfiling = enableProfiling;
               enableExecutableProfiling = enableProfiling;
             };
-            hostProxy = lib.getExe' (overrides iserv-proxy.host) "iserv-proxy-interpreter";
+            interpreterExe = "iserv-proxy-interpreter" + lib.optionalString stdenv.hostPlatform.isWindows ".exe";
+            hostProxy = lib.getExe' (overrides iserv-proxy.host) interpreterExe;
           in
           buildPackages.writeShellScriptBin ("iserv-wrapper" + lib.optionalString enableProfiling "-prof") ''
             set -euo pipefail
