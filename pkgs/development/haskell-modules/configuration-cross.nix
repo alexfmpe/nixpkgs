@@ -24,6 +24,14 @@ self: super: {
           random
           splitmix
           temporary
+
+          safe
+          syb
+          th-abstraction
+          th-compat
+          th-expand-syns
+          th-lift
+          th-reify-many
           ;
       }
     )
@@ -34,5 +42,16 @@ self: super: {
     random
     splitmix
     temporary
+
+    safe
+    syb
+    th-abstraction
+    th-compat
+    th-expand-syns
+    th-lift
+    th-reify-many
     ;
+
+  dap = doJailbreak (unmarkBroken super.dap);
+  hie-bios = disableLibraryProfiling super.hie-bios;
 }

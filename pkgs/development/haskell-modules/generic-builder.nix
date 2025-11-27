@@ -47,10 +47,10 @@ let
             set -euo pipefail
             PORT=$((5000 + $RANDOM % 5000))
             (>&2 echo "---> Starting interpreter on port $PORT")
-            ${emulator} ${hostProxy} tmp $PORT &
+            ${emulator} ${hostProxy} tmp $PORT -v &
             RISERV_PID="$!"
             trap "kill $RISERV_PID" EXIT # Needs cleanup when building without sandbox
-            ${buildProxy} $@ 127.0.0.1 "$PORT"
+            ${buildProxy} $@ 127.0.0.1 "$PORT" -v
             (>&2 echo "---> killing interpreter...")
           '';
 
