@@ -21,8 +21,8 @@ mkDerivation {
   src = fetchFromGitHub {
     owner = "stable-haskell";
     repo = "iserv-proxy";
-    rev = "a53c57c9a8d22a66a2f0c4c969e806da03f08c28";
-    hash = "sha256-WaswH0Y+Fmupvv8AkIlQBlUy/IdD3Inx9PDuE+5iRYY=";
+    rev = "bbee090fc67bb5cc6ad4508fa5def560b7672591";
+    hash = "sha256-2aCGboNCF602huvmbyTcfhe6s+D4/n/NlOefd0c0SC0=";
   };
 
   isLibrary = true;
