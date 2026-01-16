@@ -37,4 +37,11 @@ with haskellLib;
     url = "https://github.com/fpco/streaming-commons/commit/6da611f63e9e862523ce6ee53262ddbc9681ae24.patch";
     sha256 = "sha256-giEQqXZfoiAvtCFohdgOoYna2Tnu5aSYAOUH8YVldi0=";
   }) super.streaming-commons;
+
+  # Workaround for
+  #   Mingw-w64 runtime failure:
+  #   32 bit pseudo relocation at 00000001400EB99E out of range, targeting 00006FFFFFEB8170, yielding the value 00006FFEBFDCC7CE.
+  # Root cause seems to be undefined references to libffi as compilation fails if we instead use "-Wl,--disable-auto-import"
+  # See https://github.com/rust-lang/rust/issues/132226#issuecomment-2445100058
+  iserv-proxy = appendConfigureFlag "--ghc-option=-optl=-Wl,--disable-runtime-pseudo-reloc" super.iserv-proxy;
 })
