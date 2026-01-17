@@ -6,9 +6,12 @@ in
 
 with haskellLib;
 
+# cabal2nix doesn't properly add dependencies conditional on os(windows)
+
 (self: super: {
+  unix-time = addBuildDepends [ pkgs.windows.pthreads ] super.unix-time;
+
   network = lib.pipe super.network [
-    # cabal2nix doesn't properly add dependencies conditional on os(windows)
     (addBuildDepends [ self.temporary ])
 
     # https://github.com/haskell/network/pull/605
