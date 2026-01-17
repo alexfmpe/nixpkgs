@@ -1,0 +1,16 @@
+diff --git a/Basement/Terminal/Size.hsc b/Basement/Terminal/Size.hsc
+index 62c315e..ffa1507 100644
+--- a/Basement/Terminal/Size.hsc
++++ b/Basement/Terminal/Size.hsc
+@@ -119,9 +119,9 @@ instance Storable ConsoleScreenBufferInfo where
+         #{poke CONSOLE_SCREEN_BUFFER_INFO, wAttributes} ptr a
+         #{poke CONSOLE_SCREEN_BUFFER_INFO, srWindow} ptr w
+         #{poke CONSOLE_SCREEN_BUFFER_INFO, dwMaximumWindowSize} ptr m
+-    
++
+ invalidHandleValue :: IntPtr
+-invalidHandleValue = #{const INVALID_HANDLE_VALUE}
++invalidHandleValue = IntPtr $ #{const (long long int)INVALID_HANDLE_VALUE}
+ 
+ stdOutputHandle :: CULong
+ stdOutputHandle = #{const STD_OUTPUT_HANDLE}
