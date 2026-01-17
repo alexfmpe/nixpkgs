@@ -9,6 +9,8 @@ with haskellLib;
 # cabal2nix doesn't properly add dependencies conditional on os(windows)
 
 (self: super: {
+  http-client = addBuildDepends [ self.safe ] super.http-client;
+
   unix-time = addBuildDepends [ pkgs.windows.pthreads ] super.unix-time;
 
   network = lib.pipe super.network [
