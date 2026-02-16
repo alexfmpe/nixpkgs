@@ -223,7 +223,6 @@ let
   # TODO(@Ericson2314): Make always true and remove / resolve #178468
   defaultStrictDeps = if config.strictDepsByDefault then true else hostPlatform != buildPlatform;
 
-  canExecuteHostOnBuild = buildPlatform.canExecute hostPlatform;
   defaultHardeningFlags =
     (if stdenvHasCC then stdenv.cc else { }).defaultHardeningFlags or knownHardeningFlags;
   stdenvHostSuffix = optionalString (hostPlatform != buildPlatform) "-${hostPlatform.config}";
@@ -380,10 +379,18 @@ let
       );
 
     let
+      canExecuteHostOnBuild = buildPlatform.canExecute hostPlatform;
+      canEmulateHostOnBuild = stdenv.hostPlatform.emulatorAvailable stdenv.hostPlatform.buildPackages;
+
+      can = x:
+        if builtins.typeOf x == "bool"
+        then x && canExecuteHostOnBuild
+        else x.enable && (canExecuteHostOnBuild || x.evenEmulated && canEmulateHostOnBuild);
+
       # TODO(@oxij, @Ericson2314): This is here to keep the old semantics, remove when
       # no package has `doCheck = true`.
       doCheck' = doCheck && canExecuteHostOnBuild;
-      doInstallCheck' = doInstallCheck && canExecuteHostOnBuild;
+      doInstallCheck' = can doInstallCheck;
 
       separateDebugInfo' =
         let

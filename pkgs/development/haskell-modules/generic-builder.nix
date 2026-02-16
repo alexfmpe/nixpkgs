@@ -837,6 +837,10 @@ lib.fix (
       '';
 
       inherit doCheck;
+      doInstallCheck = {
+        enable = true;
+        evenEmulated = true;
+      };
 
       # Run test suite(s) and pass `checkFlags` as well as `checkFlagsArray`.
       # `testFlags` are added to `checkFlagsArray` each prefixed with
