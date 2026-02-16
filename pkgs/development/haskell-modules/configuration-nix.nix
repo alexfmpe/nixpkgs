@@ -29,6 +29,7 @@
 
 let
   inherit (pkgs) lib;
+  emulator = pkgs.stdenv.hostPlatform.emulator pkgs.buildPackages;
 in
 
 with haskellLib;
@@ -1942,7 +1943,7 @@ builtins.intersectAttrs super {
     ++ old.buildTools or [ ];
     postInstall = old.postInstall + ''
       mkdir -p "$out/share/man/man1"
-      "$out/bin/cabal" man --raw > "$out/share/man/man1/cabal.1"
+      ${emulator} "$out/bin/cabal" man --raw > "$out/share/man/man1/cabal.1"
 
       wrapProgram "$out/bin/cabal" \
         --prefix PATH : "${pkgs.lib.makeBinPath [ pkgs.groff ]}"
