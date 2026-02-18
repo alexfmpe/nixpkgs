@@ -9,16 +9,24 @@ with haskellLib;
 # cabal2nix doesn't properly add dependencies conditional on arch(javascript)
 
 (self: super: {
-  ghcjs-base = addBuildDepends (with self; [
-    aeson
-    attoparsec
-    dlist
-    hashable
-    primitive
-    scientific
-    unordered-containers
-    vector
-  ]) super.ghcjs-base;
+  ghcjs-base = lib.pipe super.ghcjs-base [
+    dontCheck # <command line>: does not exist: test/compat.js
+    (addBuildDepends (with self; [
+      HUnit
+      aeson
+      attoparsec
+      dlist
+      hashable
+      primitive
+      quickcheck-unicode
+      scientific
+      test-framework
+      test-framework-hunit
+      test-framework-quickcheck2
+      unordered-containers
+      vector
+    ]))
+  ];
 
   ghcjs-dom = addBuildDepend self.ghcjs-dom-javascript super.ghcjs-dom;
   ghcjs-dom-javascript = addBuildDepend self.ghcjs-base super.ghcjs-dom-javascript;
