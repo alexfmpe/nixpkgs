@@ -367,10 +367,7 @@ assert lib.assertMsg (stdenv.buildPlatform == stdenv.hostPlatform)
 let
   inherit (stdenv) buildPlatform hostPlatform targetPlatform;
 
-  # TODO(@Ericson2314) Make unconditional
-  targetPrefix = lib.optionalString (
-    targetPlatform.config != hostPlatform.config
-  ) "${targetPlatform.config}-";
+  targetPrefix = "${targetPlatform.config}-";
 
   # TODO(@sternenseemann): there's no stage0:exe:haddock target by default,
   # so haddock isn't available for GHC cross-compilers. Can we fix that?
