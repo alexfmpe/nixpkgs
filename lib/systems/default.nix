@@ -376,17 +376,26 @@ let
           selectEmulator =
             pkgs:
             let
-              wine = (pkgs.winePackagesFor "wine${toString final.parsed.cpu.bits}").minimal;
+              wine = ps: (ps.winePackagesFor "wine${toString final.parsed.cpu.bits}").minimal;
+              wineExe = ps: "${wine ps}/bin/wine";
+              qemuExe = "${pkgs.qemu-user}/bin/qemu-${final.qemuArch}";
+              needsQemu =
+                builtins.trace pkgs.stdenv.buildPlatform.config
+                (builtins.trace final.parsed.cpu (pkgs.stdenv.buildPlatform.parsed.cpu != final.parsed.cpu));
+              canQemu = pkgs.stdenv.hostPlatform.isLinux && final.qemuArch != null;
+              tt = x: builtins.trace x x;
             in
             # Note: we guarantee that the return value is either `null` or a path
             # to an emulator program. That is, if an emulator requires additional
             # arguments, a wrapper should be used.
             if pkgs.stdenv.hostPlatform.canExecute final then
               lib.getExe (pkgs.writeShellScriptBin "exec" ''exec "$@"'')
-            else if final.isWindows then
-              "${wine}/bin/wine"
-            else if final.isLinux && pkgs.stdenv.hostPlatform.isLinux && final.qemuArch != null then
-              "${pkgs.qemu-user}/bin/qemu-${final.qemuArch}"
+            else if final.isWindows && tt needsQemu && canQemu then
+              lib.getExe (pkgs.writeShellScriptBin "qemu-wine" ''${qemuExe} ${wineExe pkgs.pkgsCross.aarch64-multiplatform} "$@"'')
+#            else if final.isWindows then
+#              "${wine pkgs}/bin/wine"
+            else if final.isLinux && canQemu then
+              qemuExe
             else if final.isWasi then
               "${pkgs.wasmtime}/bin/wasmtime"
             else if final.isGhcjs then
