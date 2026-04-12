@@ -115,7 +115,7 @@ in
   buildFlags ? [ ],
   haddockFlags ? [ ],
   description ? null,
-  doCheck ? !isCross,
+  doCheck ? with stdenv; buildPlatform.canExecute hostPlatform,
   doBenchmark ? false,
   doHoogle ? true,
   doHaddockQuickjump ? doHoogle,

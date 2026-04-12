@@ -29,6 +29,8 @@
 
 let
   inherit (pkgs) lib;
+  whenCross = f: if isCross then f else (x: x);
+  isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
   canExecute = pkgs.stdenv.buildPlatform.canExecute pkgs.stdenv.hostPlatform;
 in
 
@@ -560,10 +562,10 @@ builtins.intersectAttrs super {
   hspec-wai = addTestToolDepends [ self.hspec-discover ] super.hspec-wai;
 
   # Package does not declare tool dependency hspec-discover
-  http-date = addTestToolDepends [ self.hspec-discover ] super.http-date;
+  http-date = addTestToolDepends [ self.hspec-discover ] (whenCross dontCheck super.http-date);
 
   # Package does not declare tool dependency hspec-discover
-  http-types = addTestToolDepends [ self.hspec-discover ] super.http-types;
+  http-types = addTestToolDepends [ self.hspec-discover ] (whenCross dontCheck super.http-types);
 
   # Package does not declare tool dependency hspec-discover
   safe-exceptions = addTestToolDepends [ self.hspec-discover ] super.safe-exceptions;
@@ -1003,9 +1005,7 @@ builtins.intersectAttrs super {
   # loc and loc-test depend on each other for testing. Break that infinite cycle:
   loc-test = super.loc-test.override { loc = dontCheck self.loc; };
 
-  smtlib-backends-process = overrideCabal (drv: {
-    testSystemDepends = (drv.testSystemDepends or [ ]) ++ [ pkgs.z3 ];
-  }) super.smtlib-backends-process;
+  smtlib-backends-process = addTestToolDepend pkgs.z3 super.smtlib-backends-process;
 
   # overrideCabal because the tests need to execute the built executable "fixpoint"
   liquid-fixpoint = overrideCabal (drv: {
@@ -1127,6 +1127,7 @@ builtins.intersectAttrs super {
     (addBuildDepend self.optparse-applicative)
     # Package does not declare tool dependency hspec-discover
     (addTestToolDepend self.hspec-discover)
+    (whenCross dontCheck)
   ];
 
   # Compile manpages (which are in RST and are compiled with Sphinx).
@@ -1466,6 +1467,7 @@ builtins.intersectAttrs super {
       pkgs.postgresqlTestHook
     ])
     (dontCheckIf (!lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.postgresqlTestHook))
+    (dontCheckIf self.inspection-testing.meta.broken)
   ];
 
   beam-postgres = lib.pipe super.beam-postgres [
@@ -2195,7 +2197,7 @@ builtins.intersectAttrs super {
   inherit
     (lib.mapAttrs (
       _:
-      overrideCabal (drv: {
+      if isCross then dontCheck else overrideCabal (drv: {
         testFlags = drv.testFlags or [ ] ++ [
           "--skip"
           "/Hpack.Defaults/ensureFile/with 404/does not create any files/"
@@ -2217,7 +2219,7 @@ builtins.intersectAttrs super {
       "--skip=/Cabal.Paths/paths"
       "--skip=/Cabal.ReplOptions" # >= 0.23
     ];
-  }) super.doctest;
+  }) (whenCross dontCheck super.doctest); # Lots of test failures
 
   # tracked upstream: https://github.com/snapframework/openssl-streams/pull/11
   # certificate used only 1024 Bit RSA key and SHA-1, which is not allowed in OpenSSL 3.1+
@@ -2262,6 +2264,83 @@ builtins.intersectAttrs super {
       );
     in
     super.iserv-proxy.overrideScope (_: overlay);
+
+  # Haskell pre-processor: could not execute: htfpp
+  list-t = whenCross (addTestToolDepend self.buildHaskellPackages.HTF) super.list-t;
+
+  # Haskell pre-processor: could not execute: hspec-discover
+  inherit (lib.mapAttrs (_: whenCross (addTestToolDepend self.buildHaskellPackages.hspec-discover)) super)
+    ascii-progress
+    countable-inflections
+    data-diverse
+    envparse
+    hi-file-parser
+    hspec-attoparsec
+    infer-license
+    interpolate
+    project-template
+    rio-orphans
+    say
+    string-conversions
+    text-zipper
+    th-utilities
+  ;
+
+  # https://github.com/haskell/hsc2hs/issues/90
+  hashable = whenCross dontCheck super.hashable;
+
+  inherit (lib.mapAttrs (_: whenCross dontCheck) super)
+    # iserv-proxy crashes/hangs:
+    #   Exception when trying to run compile-time code:
+    #     External interpreter terminated (1)
+    file-embed
+    monad-par
+    wai-app-static
+
+    # Couldn't find a target code interpreter. Try with -fexternal-interpreter
+    bsb-http-chunked
+    co-log-core
+    doctest-parallel
+    foldl
+    pcg-random
+    proto3-wire
+    slist
+    swagger2
+    xml-conduit
+    turtle
+    # Couldn't find a target code interpreter. Try with -fexternal-interpreter
+    # doctest
+    hledger-lib
+    hw-fingertree
+    hw-hspec-hedgehog
+    hw-prim
+    trial
+    validation-selective
+
+    # Plugins require -fno-external-interpreter
+    large-records
+
+    # • Environment variable PWD is not set
+    th-env
+
+    # undefined reference to `sendfile64'
+    http-streams
+    snap
+
+    # Legitimate looking test failures
+    unicode-data
+  ;
+
+  # Depends on wai-app-static which is broken on cross
+  wai-websockets = whenCross (lib.flip lib.pipe [
+    (disableCabalFlag "example")
+    (overrideCabal { executableHaskellDepends = []; })
+  ]) super.wai-websockets;
+
+  inherit (lib.mapAttrs (_: dontCheckIf self.inspection-testing.meta.broken) super)
+    algebraic-graphs
+    linear-base
+  ;
 
   # Workaround for flaky test: https://github.com/basvandijk/threads/issues/10
   threads = appendPatch ./patches/threads-flaky-test.patch super.threads;
