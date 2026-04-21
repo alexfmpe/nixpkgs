@@ -415,6 +415,14 @@ self: super:
       '';
     }) super.happy;
 
+    ghc-tags = overrideCabal (old: {
+      postInstall = ''
+        remove-references-to -t ${self.ghc} "''${!outputBin}/bin/ghc-tags"
+
+        ${old.postInstall or ""}
+      '';
+    }) super.ghc-tags;
+
     # https://github.com/fpco/unliftio/issues/87
     unliftio = dontCheck super.unliftio;
     # This is the same issue as above; the rio tests call functions in unliftio
