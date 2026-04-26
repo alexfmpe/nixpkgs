@@ -29,6 +29,8 @@
 
 let
   inherit (pkgs) lib;
+  whenCross = f: if isCross then f else (x: x);
+  isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
   canExecute = pkgs.stdenv.buildPlatform.canExecute pkgs.stdenv.hostPlatform;
 in
 
@@ -555,27 +557,6 @@ builtins.intersectAttrs super {
   ];
 
   lz4-frame-conduit = addTestToolDepends [ pkgs.lz4 ] super.lz4-frame-conduit;
-
-  # Package does not declare tool dependency hspec-discover
-  hspec-wai = addTestToolDepends [ self.hspec-discover ] super.hspec-wai;
-
-  # Package does not declare tool dependency hspec-discover
-  http-date = addTestToolDepends [ self.hspec-discover ] super.http-date;
-
-  # Package does not declare tool dependency hspec-discover
-  http-types = addTestToolDepends [ self.hspec-discover ] super.http-types;
-
-  # Package does not declare tool dependency hspec-discover
-  safe-exceptions = addTestToolDepends [ self.hspec-discover ] super.safe-exceptions;
-
-  # Package does not declare tool dependency hspec-discover
-  unliftio = addTestToolDepends [ self.hspec-discover ] super.unliftio;
-
-  # Package does not declare tool dependency hspec-discover
-  text-zipper = addTestToolDepends [ self.hspec-discover ] super.text-zipper;
-
-  # Package does not declare tool dependency hspec-discover
-  word8 = addTestToolDepends [ self.hspec-discover ] super.word8;
 
   # Test suite requires running a database server. Testing is done upstream.
   hasql = dontCheck super.hasql;
@@ -1141,7 +1122,9 @@ builtins.intersectAttrs super {
     enableSeparateBinOutput
     (addBuildDepend self.optparse-applicative)
     # Package does not declare tool dependency hspec-discover
-    (addTestToolDepend self.hspec-discover)
+    (addTestToolDepend self.buildHaskellPackages.hspec-discover)
+    # iserv-proxy: getBin: Unknown encoding for constructor
+    (dontCheckIf isCross)
   ];
 
   # Compile manpages (which are in RST and are compiled with Sphinx).
@@ -1481,6 +1464,8 @@ builtins.intersectAttrs super {
       pkgs.postgresqlTestHook
     ])
     (dontCheckIf (!lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.postgresqlTestHook))
+    # Plugins require -fno-external-interpreter
+    (dontCheckIf isCross)
   ];
 
   beam-postgres = lib.pipe super.beam-postgres [
@@ -2285,6 +2270,39 @@ builtins.intersectAttrs super {
     in
     super.iserv-proxy.overrideScope (_: overlay);
 
+  inherit (lib.mapAttrs (_: p: addTestToolDepend self.buildHaskellPackages.hspec-discover (whenCross dontCheck p)) super)
+    # During interactive linking, GHCi couldn't find the following symbol:
+    interpolate
+    th-utilities
+  ;
+
+  inherit (lib.mapAttrs (_: whenCross dontCheck) super)
+    # https://github.com/haskell/hsc2hs/issues/90
+    hashable
+
+
+    # Exception when trying to run compile-time code:
+    haskell-src-meta
+    monad-par
+
+    # iserv-proxy: getBin: Done with leftovers
+    hedgehog
+
+    # iserv-proxy: getBin: Unknown encoding for constructor
+    aeson
+    bifunctors
+    generic-deriving
+    snap
+    lens
+
+    # Plugins require -fno-external-interpreter
+    ghc-typelits-knownnat
+    ghc-typelits-natnormalise
+    inspection-testing
+    large-records
+    typerep-map
+  ;
+
   # When a build fails with one of
   #   * Haskell pre-processor: could not execute: <tool>
   #   * <tool>: createProcess: posix_spawnp: does not exist
@@ -2419,7 +2437,6 @@ builtins.intersectAttrs super {
     idringen
     ihp-postgres-parser
     infer-license
-    interpolate
     iri-orphans
     isbn
     json-stream
@@ -2513,7 +2530,6 @@ builtins.intersectAttrs super {
     templater
     text-regex-replace
     text-rope-zipper
-    th-utilities
     the-snip
     timers-tick
     tsne
@@ -2548,6 +2564,14 @@ builtins.intersectAttrs super {
     yield
     yiyd
     zim-parser
+
+    hspec-wai
+    http-date
+    http-types
+    safe-exceptions
+    text-zipper
+    unliftio
+    word8
     ;
 
   inherit (lib.mapAttrs (_: addTestToolDepend self.buildHaskellPackages.HTF) super)

@@ -115,7 +115,7 @@ in
   buildFlags ? [ ],
   haddockFlags ? [ ],
   description ? null,
-  doCheck ? !isCross,
+  doCheck ? true,
   doBenchmark ? false,
   doHoogle ? true,
   doHaddockQuickjump ? doHoogle,
