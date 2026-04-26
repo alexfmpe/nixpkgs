@@ -29,6 +29,8 @@
 
 let
   inherit (pkgs) lib;
+  whenCross = f: if isCross then f else (x: x);
+  isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
   canExecute = pkgs.stdenv.buildPlatform.canExecute pkgs.stdenv.hostPlatform;
 in
 
@@ -559,11 +561,19 @@ builtins.intersectAttrs super {
   # Package does not declare tool dependency hspec-discover
   hspec-wai = addTestToolDepends [ self.hspec-discover ] super.hspec-wai;
 
-  # Package does not declare tool dependency hspec-discover
-  http-date = addTestToolDepends [ self.hspec-discover ] super.http-date;
+  http-date = lib.pipe super.http-date [
+    # Package does not declare tool dependency hspec-discover
+    (addTestToolDepends [ self.hspec-discover ])
+    # Couldn't find a target code interpreter. Try with -fexternal-interpreter
+    (whenCross dontCheck)
+  ];
 
-  # Package does not declare tool dependency hspec-discover
-  http-types = addTestToolDepends [ self.hspec-discover ] super.http-types;
+  http-types = lib.pipe super.http-types [
+    # Package does not declare tool dependency hspec-discover
+    (addTestToolDepends [ self.hspec-discover ])
+    # Couldn't find a target code interpreter. Try with -fexternal-interpreter
+    (whenCross dontCheck)
+  ];
 
   # Package does not declare tool dependency hspec-discover
   safe-exceptions = addTestToolDepends [ self.hspec-discover ] super.safe-exceptions;
@@ -1143,6 +1153,8 @@ builtins.intersectAttrs super {
     (addBuildDepend self.optparse-applicative)
     # Package does not declare tool dependency hspec-discover
     (addTestToolDepend self.hspec-discover)
+    # iserv-proxy: Uncaught exception ghc-internal:GHC.Internal.IO.Exception.IOException:
+    (whenCross dontCheck)
   ];
 
   # Compile manpages (which are in RST and are compiled with Sphinx).
@@ -1483,6 +1495,7 @@ builtins.intersectAttrs super {
       pkgs.postgresqlTestHook
     ])
     (dontCheckIf (!lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.postgresqlTestHook))
+    (dontCheckIf self.inspection-testing.meta.broken)
   ];
 
   beam-postgres = lib.pipe super.beam-postgres [
@@ -2211,17 +2224,21 @@ builtins.intersectAttrs super {
   # These test cases access the network
   inherit
     (lib.mapAttrs (
-      _:
-      overrideCabal (drv: {
-        testFlags = drv.testFlags or [ ] ++ [
-          "--skip"
-          "/Hpack.Defaults/ensureFile/with 404/does not create any files/"
-          "--skip"
-          "/Hpack.Defaults/ensureFile/downloads file if missing/"
-          "--skip"
-          "/EndToEnd/hpack/defaults/fails if defaults don't exist/"
-        ];
-      })
+      _: pkg:
+      lib.pipe pkg [
+        (overrideCabal (drv: {
+          testFlags = drv.testFlags or [ ] ++ [
+            "--skip"
+            "/Hpack.Defaults/ensureFile/with 404/does not create any files/"
+            "--skip"
+            "/Hpack.Defaults/ensureFile/downloads file if missing/"
+            "--skip"
+            "/EndToEnd/hpack/defaults/fails if defaults don't exist/"
+          ];
+        }))
+        # iserv-proxy: Uncaught exception ghc-internal:GHC.Internal.IO.Exception.IOException:
+        (whenCross dontCheck)
+      ]
     ) super)
     hpack
     hpack_0_38_1
@@ -2234,7 +2251,11 @@ builtins.intersectAttrs super {
       "--skip=/Cabal.Paths/paths"
       "--skip=/Cabal.ReplOptions" # >= 0.23
     ];
-  }) super.doctest;
+  })
+    # Dozens of tests fail with
+    #   uncaught exception: IOException of type EOF
+    #   fd:19: hGetLine: end of file
+    (whenCross dontCheck super.doctest);
 
   # tracked upstream: https://github.com/snapframework/openssl-streams/pull/11
   # certificate used only 1024 Bit RSA key and SHA-1, which is not allowed in OpenSSL 3.1+
@@ -2281,6 +2302,74 @@ builtins.intersectAttrs super {
       );
     in
     super.iserv-proxy.overrideScope (_: overlay);
+
+  inherit (lib.mapAttrs (_: dontCheckIf self.inspection-testing.meta.broken) super)
+    algebraic-graphs
+    linear-base
+
+    infinite-list
+    fin
+    optics
+    polysemy
+    polysemy-plugin
+    data-elevator
+  ;
+
+  inherit (lib.mapAttrs (_: whenCross dontCheck) super)
+    # https://github.com/haskell/hsc2hs/issues/90
+    hashable
+
+    # Bizarre compile time error:
+    #   test/Data/StoreSpec.hs:347:10: error: [GHC-39999]
+    #       • No instance for ‘Serial IO Type’
+    #           arising from a use of ‘smallcheck-1.2.1.1:Test.SmallCheck.Property.changeDepth’
+    store
+
+    # iserv-proxy crashes/hangs:
+    #   Exception when trying to run compile-time code:
+    #     External interpreter terminated (1)
+    file-embed
+    monad-par
+    wai-app-static
+
+    # Couldn't find a target code interpreter. Try with -fexternal-interpreter
+    bsb-http-chunked
+    co-log-core
+    doctest-parallel
+    foldl
+    hledger-lib
+    hw-fingertree
+    hw-hspec-hedgehog
+    hw-prim
+    pcg-random
+    proto3-wire
+    slist
+    swagger2
+    trial
+    turtle
+    validation-selective
+    xml-conduit
+
+    pipes-group
+    BiobaseNewick
+    ENIG
+
+    # Plugins require -fno-external-interpreter
+    ghc-typelits-knownnat
+    ghc-typelits-natnormalise
+    large-records
+    typerep-map
+
+    # • Environment variable PWD is not set
+    th-env
+
+    # undefined reference to `sendfile64'
+    http-streams
+    snap
+
+    # Legitimate looking test failures
+    unicode-data
+  ;
 
   # When a build fails with one of
   #   * Haskell pre-processor: could not execute: <tool>
