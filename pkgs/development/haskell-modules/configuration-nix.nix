@@ -50,6 +50,15 @@ with haskellLib;
 
 # To avoid merge conflicts, consider adding your item at an arbitrary place in the list instead.
 self: super:
+
+# https://gitlab.haskell.org/ghc/ghc/-/issues/25083
+# https://gitlab.haskell.org/ghc/ghc/-/issues/25285
+let workaroundLockBug =
+      if isCross && lib.versionOlder self.ghc.version "9.12"
+      then haskellLib.disableParallelBuilding
+      else (x: x);
+in
+
 builtins.intersectAttrs super {
 
   # Apply NixOS-specific patches.
@@ -121,7 +130,7 @@ builtins.intersectAttrs super {
   ghcide = overrideCabal (drv: {
     # tests depend on executable
     preCheck = ''export PATH="$PWD/dist/build/ghcide:$PATH"'';
-  }) super.ghcide;
+  }) (workaroundLockBug super.ghcide);
 
   hiedb = overrideCabal (drv: {
     preCheck = ''
@@ -286,7 +295,7 @@ builtins.intersectAttrs super {
   niv = enableSeparateBinOutput (self.generateOptparseApplicativeCompletions [ "niv" ] super.niv);
   ghcid = enableSeparateBinOutput super.ghcid;
   ormolu = self.generateOptparseApplicativeCompletions [ "ormolu" ] (
-    enableSeparateBinOutput super.ormolu
+    enableSeparateBinOutput (workaroundLockBug super.ormolu)
   );
 
   hnix = lib.pipe super.hnix [
@@ -543,7 +552,7 @@ builtins.intersectAttrs super {
         "--skip=/Hpack.Defaults/ensureFile/downloads file if missing/"
         "--skip=/Hpack.Defaults/ensureFile/with 404/does not create any files/"
       ];
-    }) super.hpack_0_39_1
+    }) (workaroundLockBug super.hpack_0_39_1)
   );
 
   # Tries accessing the GitHub API
@@ -859,7 +868,7 @@ builtins.intersectAttrs super {
       export PATH="$PWD/dist/build/tasty-discover:$PATH"
     ''
     + (drv.preBuild or "");
-  }) super.tasty-discover;
+  }) (whenCross dontCheck super.tasty-discover);
 
   # GLUT uses `dlopen` to link to freeglut, so we need to set the RUNPATH correctly for
   # it to find `libglut.so` from the nix store. We do this by patching GLUT.cabal to pkg-config
@@ -1123,8 +1132,7 @@ builtins.intersectAttrs super {
     (addBuildDepend self.optparse-applicative)
     # Package does not declare tool dependency hspec-discover
     (addTestToolDepend self.buildHaskellPackages.hspec-discover)
-    # iserv-proxy: getBin: Unknown encoding for constructor
-    (dontCheckIf isCross)
+    workaroundLockBug
   ];
 
   # Compile manpages (which are in RST and are compiled with Sphinx).
@@ -1873,14 +1881,14 @@ builtins.intersectAttrs super {
   inherit
     (
       let
-        fourmoluTestFix =
+        fourmoluTestFix = pkg:
           # Can't find executable without https://github.com/haskell/cabal/pull/9912
           if lib.versionOlder self.ghc.version "9.12" then
             overrideCabal (drv: {
               preCheck = drv.preCheck or "" + ''
                 export PATH="$PWD/dist/build/fourmolu:$PATH"
               '';
-            })
+            }) (workaroundLockBug pkg)
           else
             lib.id;
       in
@@ -2194,7 +2202,7 @@ builtins.intersectAttrs super {
   # These test cases access the network
   inherit
     (lib.mapAttrs (
-      _:
+      _: pkg:
       overrideCabal (drv: {
         testFlags = drv.testFlags or [ ] ++ [
           "--skip"
@@ -2204,7 +2212,7 @@ builtins.intersectAttrs super {
           "--skip"
           "/EndToEnd/hpack/defaults/fails if defaults don't exist/"
         ];
-      })
+      }) (workaroundLockBug pkg)
     ) super)
     hpack
     hpack_0_38_1
@@ -2270,37 +2278,70 @@ builtins.intersectAttrs super {
     in
     super.iserv-proxy.overrideScope (_: overlay);
 
+  inherit (lib.mapAttrs (_: workaroundLockBug) super)
+    aeson
+    bifunctors
+    brick
+    deriving-compat
+    doctest-parallel
+    fgl
+    generic-deriving
+    github
+    hedgehog
+    lens
+    linear-generics
+    lsp
+    lsp-types
+    microlens-th
+    minio-hs
+    monad-par
+    nonempty-containers
+    optics-th
+    pandoc
+    patch
+    path
+    persistent
+    persistent-test
+    product-profunctors
+    reflex-dom-core
+    snap
+    stan
+    swagger2
+    text-show
+    toml-parser
+    trifecta
+    unicode-collation
+    wide-word
+  ;
+
   inherit (lib.mapAttrs (_: p: addTestToolDepend self.buildHaskellPackages.hspec-discover (whenCross dontCheck p)) super)
+    # iserv-proxy: {handle: fd:21}: GHCi.Message.remoteCall: end of file
+    here
+
     # During interactive linking, GHCi couldn't find the following symbol:
     interpolate
     th-utilities
   ;
 
   inherit (lib.mapAttrs (_: whenCross dontCheck) super)
+    # iserv-proxy: {handle: fd:21}: GHCi.Message.remoteCall: end of file
+    aeson-qq
+    bytebuild
+    haskell-src-meta
+
     # https://github.com/haskell/hsc2hs/issues/90
     hashable
 
-
-    # Exception when trying to run compile-time code:
-    haskell-src-meta
-    monad-par
-
-    # iserv-proxy: getBin: Done with leftovers
-    hedgehog
-
-    # iserv-proxy: getBin: Unknown encoding for constructor
-    aeson
-    bifunctors
-    generic-deriving
-    snap
-    lens
-
     # Plugins require -fno-external-interpreter
+    algebraic-graphs
+    generic-lens
     ghc-typelits-knownnat
     ghc-typelits-natnormalise
     inspection-testing
     large-records
     typerep-map
+    linear-base
+    beam-large-records
   ;
 
   # When a build fails with one of
@@ -2417,7 +2458,6 @@ builtins.intersectAttrs super {
     haskell-debug-adapter
     haskell-modbus
     hdf5-lite
-    here
     hexstring
     hi-file-parser
     hpc-threshold
@@ -2430,8 +2470,11 @@ builtins.intersectAttrs super {
     hspec-junit-formatter
     hspec-laws
     hspec-multicheck
+    hspec-wai
     hspec-wai-json
     html-validator-cli
+    http-date
+    http-types
     hunspell-hs
     hw-vector
     idringen
@@ -2500,6 +2543,7 @@ builtins.intersectAttrs super {
     rowdy
     rowdy-yesod
     rp-tree
+    safe-exceptions
     say
     scientist
     scuttlebutt-types
@@ -2530,6 +2574,7 @@ builtins.intersectAttrs super {
     templater
     text-regex-replace
     text-rope-zipper
+    text-zipper
     the-snip
     timers-tick
     tsne
@@ -2538,6 +2583,7 @@ builtins.intersectAttrs super {
     type-machine
     ulid
     unionmount
+    unliftio
     update-repos
     validity
     validity-aeson
@@ -2552,6 +2598,7 @@ builtins.intersectAttrs super {
     wai-request-params
     woot
     word-trie
+    word8
     yaml-marked
     yes-precure5-command
     yesod-auth-basic
@@ -2564,14 +2611,6 @@ builtins.intersectAttrs super {
     yield
     yiyd
     zim-parser
-
-    hspec-wai
-    http-date
-    http-types
-    safe-exceptions
-    text-zipper
-    unliftio
-    word8
     ;
 
   inherit (lib.mapAttrs (_: addTestToolDepend self.buildHaskellPackages.HTF) super)

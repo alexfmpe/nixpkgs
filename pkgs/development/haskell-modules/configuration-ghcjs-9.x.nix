@@ -31,10 +31,6 @@ with haskellLib;
 
   entropy = addBuildDepend self.ghcjs-dom super.entropy;
 
-  # https://gitlab.haskell.org/ghc/ghc/-/issues/25083#note_578275
-  patch = haskellLib.disableParallelBuilding super.patch;
-  reflex-dom-core = haskellLib.disableParallelBuilding super.reflex-dom-core;
-
   # Marked as dontDistribute in -common because of jsaddle-webkit2gtk
   # which requires an unmaintained version of libsoup. Since this dep
   # is unnecessary for the JS backend, we can re-enable these jobs here.
