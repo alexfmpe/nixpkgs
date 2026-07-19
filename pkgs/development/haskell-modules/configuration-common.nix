@@ -292,11 +292,12 @@ with haskellLib;
   );
 
   # Work around test suite not finding executable due to https://github.com/haskell/cabal/issues/11598
+  # https://github.com/Bodigrim/cabal-add/pull/12/
   cabal-add = appendPatches [
     (pkgs.fetchpatch {
       name = "cabal-add-absolute-build-tool-paths.patch";
-      url = "https://github.com/Bodigrim/cabal-add/commit/3b94b0175c294c2d0a30b6d8da3f56189216816c.patch";
-      hash = "sha256-4Nbro9Gl+RC78yprO8fYG/IWS7QvJPd0dKqSZb5jq9k=";
+      url = "https://github.com/Bodigrim/cabal-add/commit/61ffe8217a8d2df954fbcb20fecb45546adb4347.patch";
+      hash = "sha256-iJjbEGTL+QcV05UZMSKpGjeEbC5w53Vq9Cuhw5QscO0=";
     })
   ] super.cabal-add;
 
