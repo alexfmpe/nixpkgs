@@ -1174,9 +1174,8 @@ with haskellLib;
 
   cryptostore = lib.pipe super.cryptostore [
     (warnAfterVersion "0.5.0.0")
-    /*
     (overrideSrc {
-      version = "0.6.0.0"; #
+      version = "0.6.0.0"; # supports cryptonite 1.1
       src = pkgs.fetchFromCodeberg {
         owner = "ocheron";
         repo = "cryptostore";
@@ -1184,7 +1183,6 @@ with haskellLib;
         hash = "sha256-Pi+f3KF1vl2lBFHA6+VuA/sEj6le2eFOzp7Kkf2jpxo";
       };
     })
-    */
     (enableCabalFlag "use_crypton")
     (
       x:
@@ -1210,6 +1208,7 @@ with haskellLib;
 
   jwt = lib.pipe super.jwt [
     dontCheck # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
+    doJailbreak # cryptostore < 0.5
     (warnAfterVersion "0.11.0")
     (overrideSrc {
       version = "0.12.0"; # supports crypton
