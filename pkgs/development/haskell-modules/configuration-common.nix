@@ -1172,8 +1172,26 @@ with haskellLib;
   # https://github.com/theam/require/pull/31
   require = doJailbreak super.require;
 
-  # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
-  jwt = dontCheck super.jwt;
+  cryptostore = lib.pipe super.cryptostore [
+    (enableCabalFlag "use_crypton")
+    (x: x.override { cryptonite = null; x509 = null; x509-validation = null; })
+    (with self; addBuildDepends [
+      crypton
+      crypton-asn1-encoding
+      crypton-asn1-types
+      crypton-pem
+      crypton-x509
+      crypton-x509-validation
+      time-hourglass
+    ])
+  ];
+
+  jwt = lib.pipe super.jwt [
+    dontCheck # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
+    (enableCabalFlag "use_crypton")
+    (with self; addBuildDepends [  ])
+    (x: x.override { cryptonite = null; x509 = null; x509-store = null; })
+  ];
 
   # 2024-03-10: Getting the test suite to run requires a correctly crafted GHC_ENVIRONMENT variable.
   graphql-client = dontCheck super.graphql-client;
