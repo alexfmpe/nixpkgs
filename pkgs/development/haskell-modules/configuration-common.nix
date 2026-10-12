@@ -1173,24 +1173,37 @@ with haskellLib;
   require = doJailbreak super.require;
 
   cryptostore = lib.pipe super.cryptostore [
+    (warnAfterVersion "0.5.0.0")
+    (overrideSrc {
+      version = "0.6.0.0"; # supports cryptonite 1.1
+      src = pkgs.fetchFromCodeberg {
+        owner = "ocheron";
+        repo = "cryptostore";
+        rev = "cryptostore-0.6.0.0";
+        hash = "sha256-Pi+f3KF1vl2lBFHA6+VuA/sEj6le2eFOzp7Kkf2jpxo";
+      };
+    })
     (enableCabalFlag "use_crypton")
-    (x: x.override { cryptonite = null; x509 = null; x509-validation = null; })
-    (with self; addBuildDepends [
-      crypton
-      crypton-asn1-encoding
-      crypton-asn1-types
-      crypton-pem
-      crypton-x509
-      crypton-x509-validation
-      time-hourglass
-    ])
-  ];
-
-  jwt = lib.pipe super.jwt [
-    dontCheck # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
-    (enableCabalFlag "use_crypton")
-    (with self; addBuildDepends [  ])
-    (x: x.override { cryptonite = null; x509 = null; x509-store = null; })
+    (
+      x:
+      x.override {
+        cryptonite = null;
+        x509 = null;
+        x509-validation = null;
+      }
+    )
+    (
+      with self;
+      addBuildDepends [
+        crypton
+        crypton-asn1-encoding
+        crypton-asn1-types
+        crypton-pem
+        crypton-x509
+        crypton-x509-validation
+        time-hourglass
+      ]
+    )
   ];
 
   # 2024-03-10: Getting the test suite to run requires a correctly crafted GHC_ENVIRONMENT variable.
