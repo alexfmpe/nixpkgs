@@ -1206,6 +1206,30 @@ with haskellLib;
     )
   ];
 
+  jwt = lib.pipe super.jwt [
+    dontCheck # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
+    (warnAfterVersion "0.11.0")
+    (overrideSrc {
+      version = "0.12.0"; # supports crypton
+      src = pkgs.fetchFromGitHub {
+        owner = "puffnfresh";
+        repo = "haskell-jwt";
+        rev = "529f49e444b815e54e7bcd8602207767aa50c7b8";
+        hash = "sha256-iXLq+VcJHL+6EzKRPI8qP+idEH/XPj94DFq3f4VjsjY";
+      };
+    })
+    (enableCabalFlag "use_crypton")
+    (
+      x:
+      x.override {
+        cryptonite = null;
+        x509 = null;
+        x509-store = null;
+      }
+    )
+    (with self; addBuildDepends [ ])
+  ];
+
   # 2024-03-10: Getting the test suite to run requires a correctly crafted GHC_ENVIRONMENT variable.
   graphql-client = dontCheck super.graphql-client;
 
