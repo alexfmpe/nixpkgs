@@ -1174,8 +1174,9 @@ with haskellLib;
 
   cryptostore = lib.pipe super.cryptostore [
     (warnAfterVersion "0.5.0.0")
+    /*
     (overrideSrc {
-      version = "0.6.0.0"; # supports cryptonite 1.1
+      version = "0.6.0.0"; #
       src = pkgs.fetchFromCodeberg {
         owner = "ocheron";
         repo = "cryptostore";
@@ -1183,6 +1184,7 @@ with haskellLib;
         hash = "sha256-Pi+f3KF1vl2lBFHA6+VuA/sEj6le2eFOzp7Kkf2jpxo";
       };
     })
+    */
     (enableCabalFlag "use_crypton")
     (
       x:
